@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Antrian Klinik Adiyasa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        main {
+            text-align: center;
+			margin-top: -100px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        #tanggal {
+            font-size: 2em;
+            margin-top: 10px;
+            color: #ffffff;
+        }
+
+        #nomor-antrian {
+            font-size: 12em;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ANTRIAN KLINIK ADIYASA</h1>
+        <h3 id="tanggal">28 April 2024 10:22:03 WIB</h>
+    </header>
+    <main>
+		<h1 id="nomor-antrian">-</h1>
+		<h3>Antrian Sekarang</h3>
+		<h3 id="dokter">-</h3>
+    </main>
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    <script>
+		let ANTRIAN = 0
+		document.getElementById('nomor-antrian').innerText = ANTRIAN
+        var pusher = new Pusher("ebe626bcda11ba90d17e", {
+            cluster: "ap1",
+        });
+        var channel = pusher.subscribe("klinik");
+        channel.bind("antrian", (data) => {
+            // Update nomor antrian
+			(async () => {
+				const parts = data.message.split('|');
+				ANTRIAN = parts[0];
+				document.getElementById('nomor-antrian').innerText = ANTRIAN;
+				document.getElementById('dokter').innerText = parts[2];
+
+				// play audio
+				const response = await fetch(parts[1]);
+				const blob = await response.blob();
+				const url = URL.createObjectURL(blob);
+				const audio = new Audio(url);
+				audio.play();
+			})();
+        });
+
+        setInterval(updateTime, 1000);
+
+        function updateTime() {
+            var now = new Date();
+            var day = addZero(now.getDate());
+            var monthIndex = now.getMonth();
+            var year = now.getFullYear();
+            var hour = addZero(now.getHours());
+            var minute = addZero(now.getMinutes());
+            var second = addZero(now.getSeconds());
+            var dateString = day + ' ' + monthName(monthIndex) + ' ' + year + ' ' + hour + ':' + minute + ':' + second + ' WIB';
+            document.getElementById('tanggal').innerText = dateString;
+        }
+
+        function monthName(monthIndex) {
+            var monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            return monthNames[monthIndex];
+        }
+
+        function addZero(num) {
+            return (num < 10 ? '0' : '') + num;
+        }
+    </script>
+</body>
+</html>
