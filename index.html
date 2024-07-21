@@ -85,6 +85,7 @@
             // Update nomor antrian
 			(async () => {
 				const parts = data.message.split('|');
+                console.log(parts);
 				ANTRIAN = parts[0];
 				document.getElementById('nomor-antrian').innerText = ANTRIAN;
 				document.getElementById('dokter').innerText = parts[2];
