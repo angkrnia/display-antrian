@@ -85,17 +85,25 @@
             // Update nomor antrian
 			(async () => {
 				const parts = data.message.split('|');
-                console.log(parts);
 				ANTRIAN = parts[0];
 				document.getElementById('nomor-antrian').innerText = ANTRIAN;
 				document.getElementById('dokter').innerText = parts[2];
 
-				// play audio
-				const response = await fetch('/assets/voice-announcement/'+parts[1]);
-				const blob = await response.blob();
-				const url = URL.createObjectURL(blob);
-				const audio = new Audio(url);
-				audio.play();
+                const responsePrepare = await fetch('/assets/voice-announcement/prepare.wav');
+                const blobPrepare = await responsePrepare.blob();
+                const urlPrepare = URL.createObjectURL(blobPrepare);
+                const audioPrepare = new Audio(urlPrepare);
+                audioPrepare.volume = 1.0;
+
+                audioPrepare.addEventListener('ended', async () => {
+                    const response = await fetch('/assets/voice-announcement/' + parts[0] + '.mp3');
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const audio = new Audio(url);
+                    audio.play();
+                });
+
+                audioPrepare.play();
 			})();
         });
 
