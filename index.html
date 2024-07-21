@@ -90,7 +90,7 @@
 				document.getElementById('dokter').innerText = parts[2];
 
 				// play audio
-				const response = await fetch(parts[1]);
+				const response = await fetch('/assets/voice-announcement/'+parts[1]);
 				const blob = await response.blob();
 				const url = URL.createObjectURL(blob);
 				const audio = new Audio(url);
