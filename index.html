@@ -40,6 +40,20 @@
             font-size: 12em;
             color: #4CAF50;
         }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -51,11 +65,42 @@
 		<h1 id="nomor-antrian">-</h1>
 		<h3>Antrian Sekarang</h3>
 		<h3 id="dokter">-</h3>
+        <button onclick="fetchAntrianData()">Refresh</button>
     </main>
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             fetchAntrianData();
+
+            var pusher = new Pusher("ebe626bcda11ba90d17e", {
+                cluster: "ap1",
+            });
+            var channel = pusher.subscribe("klinik");
+            channel.bind("antrian", (data) => {
+                // Update nomor antrian
+                (async () => {
+                    const parts = data.message.split('|');
+                    ANTRIAN = parts[0];
+                    document.getElementById('nomor-antrian').innerText = ANTRIAN;
+                    document.getElementById('dokter').innerText = parts[2];
+
+                    const responsePrepare = await fetch('/assets/voice-announcement/prepare.wav');
+                    const blobPrepare = await responsePrepare.blob();
+                    const urlPrepare = URL.createObjectURL(blobPrepare);
+                    const audioPrepare = new Audio(urlPrepare);
+                    audioPrepare.volume = 1.0;
+
+                    audioPrepare.addEventListener('ended', async () => {
+                        const response = await fetch('/assets/voice-announcement/' + parts[0] + '.mp3');
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const audio = new Audio(url);
+                        audio.play();
+                    });
+
+                    audioPrepare.play();
+                })();
+            });
         });
 
         function fetchAntrianData() {
@@ -77,35 +122,6 @@
         }
 		let ANTRIAN = 0
 		document.getElementById('nomor-antrian').innerText = ANTRIAN
-        var pusher = new Pusher("ebe626bcda11ba90d17e", {
-            cluster: "ap1",
-        });
-        var channel = pusher.subscribe("klinik");
-        channel.bind("antrian", (data) => {
-            // Update nomor antrian
-			(async () => {
-				const parts = data.message.split('|');
-				ANTRIAN = parts[0];
-				document.getElementById('nomor-antrian').innerText = ANTRIAN;
-				document.getElementById('dokter').innerText = parts[2];
-
-                const responsePrepare = await fetch('/assets/voice-announcement/prepare.wav');
-                const blobPrepare = await responsePrepare.blob();
-                const urlPrepare = URL.createObjectURL(blobPrepare);
-                const audioPrepare = new Audio(urlPrepare);
-                audioPrepare.volume = 1.0;
-
-                audioPrepare.addEventListener('ended', async () => {
-                    const response = await fetch('/assets/voice-announcement/' + parts[0] + '.mp3');
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    const audio = new Audio(url);
-                    audio.play();
-                });
-
-                audioPrepare.play();
-			})();
-        });
 
         setInterval(updateTime, 1000);
 
