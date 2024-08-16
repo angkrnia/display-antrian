@@ -64,7 +64,7 @@
     <main>
 		<h1 id="nomor-antrian">-</h1>
 		<h3>Antrian Sekarang</h3>
-		<h3 id="dokter">-</h3>
+		<h3 id="dokter">dr. Friska Yeni Sinamo</h3>
         <button onclick="fetchAntrianData()">Refresh</button>
     </main>
     <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
@@ -99,7 +99,7 @@
                 const parts = data.message.split('|');
                 ANTRIAN = parts[0];
                 document.getElementById('nomor-antrian').innerText = ANTRIAN;
-                document.getElementById('dokter').innerText = parts[2];
+                // document.getElementById('dokter').innerText = parts[2];
 
                 const responsePrepare = await fetch('/assets/voice-announcement/prepare.wav');
                 const blobPrepare = await responsePrepare.blob();
