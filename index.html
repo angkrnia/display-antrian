@@ -44,6 +44,7 @@
           <div class="text-9xl font-extrabold text-white" id="nomor-antrian">
             0
           </div>
+          <p class="text-lg" id="dokter"></p>
           <p class="text-lg">Silakan menuju ruang pemeriksaan</p>
           <button
             type="button"
@@ -96,11 +97,13 @@
           .then((data) => {
             document.getElementById("nomor-antrian").innerText =
               data.data.antrian_saat_ini;
+            document.getElementById("dokter").innerText = data.data.nama_dokter;
           })
           .catch((error) => {
             console.error("Error fetching the data: ", error);
           });
       }
+
       let ANTRIAN = 0;
       document.getElementById("nomor-antrian").innerText = ANTRIAN;
 
