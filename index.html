@@ -56,16 +56,16 @@
         </div>
 
         <div class="p-8 overflow-y-auto h-full">
-          <h2 class="text-3xl font-semibold text-gray-800 mb-4">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
             Pasien Berikutnya
           </h2>
           <table class="table-auto w-full text-left text-gray-800">
             <thead class="bg-gray-200 sticky top-0">
               <tr>
-                <th class="px-4 py-2 text-xl">Nomor</th>
-                <th class="px-4 py-2 text-xl">Status</th>
-                <th class="px-4 py-2 text-xl">Pasien</th>
-                <th class="px-4 py-2 text-xl">Dokter</th>
+                <th class="px-4 py-2">Nomor</th>
+                <th class="px-4 py-2">Status</th>
+                <th class="px-4 py-2">Pasien</th>
+                <th class="px-4 py-2">Dokter</th>
               </tr>
             </thead>
             <tbody id="nextQueue">
@@ -113,33 +113,35 @@
       });
       var channel = pusher.subscribe("klinik");
       channel.bind("antrian", (data) => {
+        fetchQueueData();
         // Update nomor antrian
         (async () => {
-          fetchQueueData();
-          const parts = data.message.split("|");
-          ANTRIAN = parts[0];
-          document.getElementById("nomor-antrian").innerText = ANTRIAN;
-          document.getElementById("dokter").innerText = parts[2];
+          if (data.message) {
+            const parts = data.message.split("|");
+            ANTRIAN = parts[0];
+            document.getElementById("nomor-antrian").innerText = ANTRIAN;
+            document.getElementById("dokter").innerText = parts[2];
 
-          const responsePrepare = await fetch(
-            "/assets/voice-announcement/prepare.wav"
-          );
-          const blobPrepare = await responsePrepare.blob();
-          const urlPrepare = URL.createObjectURL(blobPrepare);
-          const audioPrepare = new Audio(urlPrepare);
-          audioPrepare.volume = 1.0;
-
-          audioPrepare.addEventListener("ended", async () => {
-            const response = await fetch(
-              "/assets/voice-announcement/" + parts[0] + ".mp3"
+            const responsePrepare = await fetch(
+              "/assets/voice-announcement/prepare.wav"
             );
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
-            audio.play();
-          });
+            const blobPrepare = await responsePrepare.blob();
+            const urlPrepare = URL.createObjectURL(blobPrepare);
+            const audioPrepare = new Audio(urlPrepare);
+            audioPrepare.volume = 1.0;
 
-          audioPrepare.play();
+            audioPrepare.addEventListener("ended", async () => {
+              const response = await fetch(
+                "/assets/voice-announcement/" + parts[0] + ".mp3"
+              );
+              const blob = await response.blob();
+              const url = URL.createObjectURL(blob);
+              const audio = new Audio(url);
+              audio.play();
+            });
+
+            audioPrepare.play();
+          }
         })();
       });
 
@@ -202,7 +204,6 @@
           case "waiting":
             return "Menunggu";
             break;
-
           default:
             return "";
             break;
@@ -223,16 +224,12 @@
               data.data.forEach((item) => {
                 nextQueueTable.innerHTML += `
                     <tr class="bg-gray-50">
-                      <td class="border px-4 py-2 text-lg">${item.queue}</td>
-                      <td class="border px-4 py-2 text-lg">${convertStatusName(
+                      <td class="border px-4 py-2">${item.queue}</td>
+                      <td class="border px-4 py-2">${convertStatusName(
                         item.status
                       )}</td>
-                      <td class="border px-4 py-2 text-lg">${
-                        item.patient_name
-                      }</td>
-                      <td class="border px-4 py-2 text-lg">${
-                        item.doctor_name
-                      }</td>
+                      <td class="border px-4 py-2">${item.patient_name}</td>
+                      <td class="border px-4 py-2">${item.doctor_name}</td>
                     </tr>
                   `;
               });
