@@ -63,13 +63,14 @@
             <thead class="bg-gray-200 sticky top-0">
               <tr>
                 <th class="px-4 py-2 text-xl">Nomor</th>
+                <th class="px-4 py-2 text-xl">Status</th>
                 <th class="px-4 py-2 text-xl">Pasien</th>
                 <th class="px-4 py-2 text-xl">Dokter</th>
               </tr>
             </thead>
             <tbody id="nextQueue">
               <tr class="bg-gray-50">
-                <td class="border px-4 py-2 text-lg text-center" colspan="3">
+                <td class="border px-4 py-2 text-lg text-center" colspan="4">
                   Loading...
                 </td>
               </tr>
@@ -190,6 +191,24 @@
         return (num < 10 ? "0" : "") + num;
       }
 
+      function convertStatusName(code) {
+        switch (code) {
+          case "on process":
+            return "Diperiksa";
+            break;
+          case "on waiting":
+            return "Belum Pemeriksaan Fisik";
+            break;
+          case "waiting":
+            return "Menunggu";
+            break;
+
+          default:
+            return "";
+            break;
+        }
+      }
+
       async function fetchQueueData() {
         try {
           const response = await fetch(
@@ -205,15 +224,22 @@
                 nextQueueTable.innerHTML += `
                     <tr class="bg-gray-50">
                       <td class="border px-4 py-2 text-lg">${item.queue}</td>
-                      <td class="border px-4 py-2 text-lg">${item.patient_name}</td>
-                      <td class="border px-4 py-2 text-lg">${item.doctor_name}</td>
+                      <td class="border px-4 py-2 text-lg">${convertStatusName(
+                        item.status
+                      )}</td>
+                      <td class="border px-4 py-2 text-lg">${
+                        item.patient_name
+                      }</td>
+                      <td class="border px-4 py-2 text-lg">${
+                        item.doctor_name
+                      }</td>
                     </tr>
                   `;
               });
             } else {
               nextQueueTable.innerHTML = `
                 <tr class="bg-gray-50">
-                  <td class="border px-4 py-2 text-lg text-center" colspan="3">Tidak ada antrian</td>
+                  <td class="border px-4 py-2 text-lg text-center" colspan="4">Tidak ada antrian</td>
                 </tr>
               `;
             }
