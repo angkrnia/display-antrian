@@ -84,7 +84,7 @@
       function fetchAntrianData() {
         fetchQueueData();
         const apiURL =
-          "https://klinikadiyasa.heystudio.web.id/api/public/check-antrian";
+          "https://api-klinikadiyasa-production.heystudio.web.id/api/public/check-antrian";
 
         fetch(apiURL)
           .then((response) => {
@@ -216,7 +216,7 @@
       async function fetchQueueData() {
         try {
           const response = await fetch(
-            "https://klinikadiyasa.heystudio.web.id/api/public/list-antrian"
+            "https://api-klinikadiyasa-production.heystudio.web.id/api/public/list-antrian"
           );
           const data = await response.json();
 
